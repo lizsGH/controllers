@@ -216,7 +216,7 @@ class UserController extends BaseController
     function actionDel(){
         global $db,$act,$show;
         $sPost = $_POST;
-        $id = filterStr($sPost['id']);
+        $id = filterStr($sPost['user_id']);
         $idArr = explode(',',$id);
         foreach($idArr as $k =>$v){
             if($v == 30 || $v == 31 ||$v ==32 || $v==2){

@@ -387,7 +387,7 @@ function actionAddAndEditData()
             }else{
                 $success = false;
                 $aJson ['msg'] = Yii::t('app', '编辑任务失败');
-                $hdata['sDes'] = '编辑基线任务';
+                $hdata['sDes'] = Yii::t('app', '编辑基线任务');
                 $hdata['sRs'] = Yii::t('app', "失败");
                 $hdata['sAct'] = $act.'/'.$show;
                 saveOperationLog($hdata);

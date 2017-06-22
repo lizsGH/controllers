@@ -9,7 +9,6 @@ use yii\web\Controller;
 
 class ServerconfigController extends BaseController
 {
-
     /**
      * @列表页
      */
@@ -154,7 +153,64 @@ class ServerconfigController extends BaseController
      * @pptp路由设置
      */
     function actionPptprouteSetting(){
+        global $db, $act, $show;
+        $aPost = $_POST;
 
+//        if (!filter_ip($aPost['ipaddress'])) {
+//            $success = false;
+//            $msg = "ipv4地址格式错误";
+//            $data['success'] = $success;
+//            $data['msg'] = $msg;
+//            echo json_encode($data);
+//            exit;
+//        }
+        if (!filter_ip($aPost['mask'])) {
+            $success = false;
+            $msg = Yii::t('app', "掩码格式错误");
+            $data['success'] = $success;
+            $data['msg'] = $msg;
+            echo json_encode($data);
+            exit;
+        }
+        $sFlg = 'ppp';
+        exec("/sbin/ifconfig -a | grep " . $sFlg, $aData);
+        $aJson = array();
+        foreach ($aData as $k => $v) {
+            $aJson[$sFlg . $k] = getInterForceData($sFlg . $k);
+        }
+        $aPost['oldnetname'] = filterStr($aJson['ppp0']['ipaddress']);
+        $aPost['oldipv6address'] = filterStr($aJson['oldipv6address']);
+        $aPost['oldipv6prefix'] = filterStr($aJson['oldipv6prefix']);
+
+
+        $aJson = array();
+        if (1) {
+            //$updatesql = "update ".getTable('netport')." set ipaddress ='" . $aPost['ipaddress'] . "', subnetmask = '" . $aPost['subnetmask'] . "', ipv6address = '" . $aPost['ipv6address'] . "', ipv6prefix = '" . $aPost['ipv6prefix'] . "', status ='" . $aPost['status'] . "' where netname = '" . $aPost['netname'] . "'";
+            if (1) {
+                //$this->setifcigeth($aPost['netname'],$aPost['ipaddress'],$aPost['subnetmask']);
+                $shell = "/sbin/ifconfig " . $aPost['nic'] . " " . $aPost['ipv4'] . " netmask " . $aPost['mask'];
+                //echo $shell;die;
+                shellResult($shell);
+
+
+//                if ($aPost['status'] == 'UP') {
+//                    $stShell = "/sbin/ifconfig " . $aPost['netname'] . " up";
+//                    shellResult($stShell);
+//                } else {
+//                    $stShell = "/sbin/ifconfig " . $aPost['netname'] . " down";
+//                    shellResult($stShell);
+//                }
+
+                $aJson['success'] = true;
+                 $aJson['msg'] = Yii::t('app', '更新成功！');
+                $hdata['sDes'] = Yii::t('app', '网口更新');
+                $hdata['sRs'] = Yii::t('app', '成功');
+                $hdata['sAct'] = $act . '/' . $show;
+                saveOperationLog($hdata);
+            }
+        }
+        echo json_encode($aJson);
+        exit;
     }
     /**
      * @ SYSLOG配置

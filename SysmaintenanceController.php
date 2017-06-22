@@ -258,7 +258,7 @@ class SysmaintenanceController extends BaseController
 
 //系统升级
 
-    function actionUpgradesys()
+    function actionUpgradeSys()
     {
         global $act, $show;
         $dir = "/home/bluedon/bdscan/bdwebserver/nginx/html/data/upsys/";
@@ -277,7 +277,8 @@ class SysmaintenanceController extends BaseController
             if ($result[0] == '.bds') {
                 if ($_FILES['filenamesys']['size'] < 200 * 1024 * 1024) {
                     if (move_uploaded_file($_FILES['filenamesys']['tmp_name'], $dir . $_FILES['filenamesys']['name'])) {
-                        $shell = "/home/soc/preupgrade/preupgrade -tupgrade -a" . $dir . $_FILES['filenamesys']['name'];
+                        // $shell = "/home/soc/preupgrade/preupgrade -tupgrade -a" . $dir . $_FILES['filenamesys']['name'];
+                        $shell = "/home/bluedon/bdscan/update/preupgrade/preupgrade -tupgrade -a " . $dir . $_FILES['filenamesys']['name'];
                         if (shellResult($shell)) {
                             $aJson ['success'] = true;
                             $aJson ['msg'] = Yii::t('app', '升级成功。');

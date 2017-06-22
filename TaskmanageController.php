@@ -978,7 +978,6 @@ select uuid from bd_web_history");
                         Yii::$app->db->createCommand("drop table bd_web_url_$vv[2]")->execute();
                     }
 
-                }elseif($vv[1]==Yii::t('app', '主机')){
                 }elseif($vv[1]=='host'){
                     Yii::$app->db->createCommand("delete from bd_host_task_manage where uuid='$vv[0]'")->execute();
                     if(in_array("bd_host_result_$vv[2]",$this->getAllTables())){

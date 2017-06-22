@@ -35,8 +35,11 @@ class OperatelogController extends BaseController
         $action = \Yii::$app->request->post('action','');
         $icStartDate = strtotime(filterStr(\Yii::$app->request->post('iStartDate')));;
         $icEndDate = strtotime(filterStr(\Yii::$app->request->post('iEndDate','')));
-        $iStartDate = empty($icStartDate) ? $icStartDate : $icStartDate - 8 * 60 * 60;
-        $iEndDate = empty($icEndDate) ? $icEndDate : $icEndDate - 8 * 60 * 60;
+        //$iStartDate = empty($icStartDate) ? $icStartDate : $icStartDate - 8 * 60 * 60;
+        //$iEndDate = empty($icEndDate) ? $icEndDate : $icEndDate - 8 * 60 * 60;
+        $iStartDate = $icStartDate;
+        $iEndDate = $icEndDate;
+
 
         $total = 0;
         $rows = $aData = array();

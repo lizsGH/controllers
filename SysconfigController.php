@@ -75,13 +75,12 @@ class SysconfigController extends BaseController
         $sPost = $_POST;
         $maxError = intval($sPost['maxError']);
         $lockTime = intval($sPost['lockTime']);
-        $query = "update " . getTable('userconfig') . " set maxError=$maxError,lockTime=$lockTime WHERE iId=1";
-        if ($db->query($query)) {
+        $query = "update bd_sys_userconfig set maxError=$maxError,lockTime=$lockTime WHERE iId=1";
+        if ($db->query($query)>=0) {
             $success = true;
             $msg = Yii::t('app', "操作成功");
             $hdata['sDes'] = Yii::t('app', '登录失败设置');
             $hdata['sRs'] = Yii::t('app', '成功');
-            $hdata['sAct'] = $act . '/' . $show;
             saveOperationLog($hdata);
         } else {
             $success = false;
@@ -106,7 +105,7 @@ class SysconfigController extends BaseController
         $sPost = $_POST;
         $iSessionTimeout = intval($sPost['iSessionTimeout']);
         $query = "update " . getTable('userconfig') . " set iSessionTimeout=$iSessionTimeout WHERE iId=1";
-        if ($db->query($query)) {
+        if ($db->query($query)>=0) {
             $success = true;
             $msg = Yii::t('app', "操作成功");
             $hdata['sDes'] = Yii::t('app', '自动退出设置');
@@ -471,7 +470,7 @@ class SysconfigController extends BaseController
 
 
             $sql = "update bd_sys_scanset set smrws = " . $smrws . ",allowIPs ='" . $allowIPs . "' , allow_login_ips ='" . $allow_login_ips . "' where iId =1";
-            if ($db->query($sql)) {
+            if ($db->query($sql)>=0) {
                 $aJson['success'] = true;
                 $aJson['msg'] = Yii::t('app', '保存成功');
                 echo json_encode($aJson);

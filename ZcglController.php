@@ -140,7 +140,7 @@ class ZcglController extends BaseController
         } else if ($level == 2) {
             $zc = $db->fetch_first("SELECT * FROM bd_asset_device_info where id = $family");
             $zc['open_port'] = str_replace("|", "<br />", $zc['open_port']);//在texteara中展示要用\r\n ，当作HTML标签时用<br />
-            $zc['scan_time'] = date('Y-m-d H:i:s', $zc['scan_time']);
+            $zc['scan_time'] = $zc['scan_time'] == 0 ? Yii::t('app', '未扫描') : date('Y-m-d H:i:s', $zc['scan_time']);
             if(!empty($zc['depart_id'])){
                 $depart = $db->fetch_first("SELECT * FROM bd_asset_depart_info where id = {$zc['depart_id']}");
             }else{
@@ -921,7 +921,7 @@ class ZcglController extends BaseController
 
 
             $sql = "UPDATE bd_asset_depart_info SET " . $sFieldValue . " WHERE id=" . $id;
-            if ($db->query($sql)) {
+            if ($db->query($sql)>=0) {
                 $success = true;
                 $msg = Yii::t('app', "修改成功");
                 $hdata['sDes'] = Yii::t('app', '修改部门') . '(' . $sRows['name'] . ')';
@@ -1713,7 +1713,7 @@ class ZcglController extends BaseController
     function actionExportzc()
     {
         global $db, $act, $show;
-        require_once '../web/resource/js/PHPExcel/PHPExcel.php';
+        require_once DIR_ROOT.'resource/js/PHPExcel/PHPExcel.php';
         $sPost = $_POST;
         $ids = filterStr($sPost['ids']);
         $tmp_id = explode(',', $ids);
@@ -1722,7 +1722,7 @@ class ZcglController extends BaseController
             $f_ids .= intval($v) . ',';
         }
         $f_ids = trim($f_ids, ',');
-        $where = 'where a.id IN(:id)';
+        $where = 'where a.id IN('.$f_ids.')';
 
         if ($sPost) {
 
@@ -1733,7 +1733,7 @@ class ZcglController extends BaseController
             //$sql = "select a.TAR_NAME,a.TAR_FROM_DEPART,a.TAR_TYPE,a.TAR_VALUE,a.TAR_CMD,a.TAR_REMARK,a.TAR_M_IPV4,a.TAR_M_IPV6,a.TAR_M_MAC,FROM_UNIXTIME(a.TAR_M_SCAN_TIME),a.TAR_M_STATE,b.DEPART_NAME from asset_target_info as a inner join asset_part_info as b ".$where." and a.TAR_FROM_DEPART = b.ID order by a.ID asc";
             $sql = "select a.device_name,a.os,a.hop,a.open_port,a.name,a.depart_id,a.device_type,a.value,a.master,a.remark,a.ipv4,a.ipv6,a.mac,FROM_UNIXTIME(a.scan_time),a.status,b.name from bd_asset_device_info as a inner join bd_asset_depart_info as b " . $where . " and a.depart_id = b.id order by a.id asc";
             //$sql = sprintf($sql, mysql_real_escape_string($f_ids));
-            $list = $db->fetch_all($sql,array(':id'=>$f_ids));
+            $list = $db->fetch_all($sql);
 
             if ($list) {
                 $phpexcel = new \PHPExcel();

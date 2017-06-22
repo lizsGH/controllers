@@ -189,7 +189,7 @@ function actionExpreport()
     //请求路径
     //$sUrl = Yii::app()->request->hostInfo.$this->createUrl('Taskreport/Index',array('ex'=>1,'task_id'=>$hPost->task_id));
     $sUrl = SITE_ROOT."/jxhc_report/index?ex=1&task_id=".intval($hPost['task_id'])."&result_extend=1";
-    //var_dump($sUrl);
+    //var_dump($sUrl);exit;
     $pdf->addCover($sUrl);
     $tarname = $hPost['task_name'].date("Y-m-d",time()).'-'.time().'.zip';
     $pdfpath = $hPost['task_name'].date("Y-m-d",time()).'-'.time().'.pdf';

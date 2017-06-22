@@ -1,6 +1,12 @@
 <?php
 namespace  app\controllers;
 
+/**
+ * 报表
+ * author hjf
+ * time 2017年5月22日13:53:14
+ */
+use Yii;
 use app\components\client_db;
 use app\components\MhtFileMaker;
 use app\models\BdHostTaskManage;
@@ -817,29 +823,33 @@ select a.vul_name,a.vul_id,b.category from $tablevul a LEFT JOIN bd_host_vul_lib
                     exec($exec);
 
                   //生成图片
-                    $exec = "cd /nginx/html/report/now; /nginx/wkhtmltox/bin/wkhtmltoimage --crop-x 50 --crop-y 5 --crop-w 800 --crop-h 300 ".\Yii::$app->request->getHostInfo()."/bbgl/htmltoimg?img=attack-img-$type-$tasks.php  $dir/{$tasks}-{$date}-1.jpg";
+                    $exec = "cd /home/bluedon/bdscan/bdwebserver/nginx/html/report/now; /home/bluedon/bdscan/bdwebserver/nginx/wkhtmltox/bin/wkhtmltoimage --crop-x 50 --crop-y 5 --crop-w 800 --crop-h 300 ".\Yii::$app->request->getHostInfo()."/bbgl/htmltoimg?img=attack-img-$type-$tasks.php  $dir/{$tasks}-{$date}-1.jpg";
                     exec($exec);
-                    $exec = "cd /nginx/html/report/now; /nginx/wkhtmltox/bin/wkhtmltoimage --crop-x 50 --crop-y 300 --crop-w 800 --crop-h 300 ".\Yii::$app->request->getHostInfo()."/bbgl/htmltoimg?img=attack-img-$type-$tasks.php  $dir/{$tasks}-{$date}-2.jpg";
+                    $exec = "cd /home/bluedon/bdscan/bdwebserver/nginx/html/report/now; /home/bluedon/bdscan/bdwebserver/nginx/wkhtmltox/bin/wkhtmltoimage --crop-x 50 --crop-y 300 --crop-w 800 --crop-h 300 ".\Yii::$app->request->getHostInfo()."/bbgl/htmltoimg?img=attack-img-$type-$tasks.php  $dir/{$tasks}-{$date}-2.jpg";
                     exec($exec);
-                    $exec = "cd /nginx/html/report/now; /nginx/wkhtmltox/bin/wkhtmltoimage --crop-x 50 --crop-y 600 --crop-w 800 --crop-h 300 ".\Yii::$app->request->getHostInfo()."/bbgl/htmltoimg?img=attack-img-$type-$tasks.php  $dir/{$tasks}-{$date}-3.jpg";
+                    $exec = "cd /home/bluedon/bdscan/bdwebserver/nginx/html/report/now; /home/bluedon/bdscan/bdwebserver/nginx/wkhtmltox/bin/wkhtmltoimage --crop-x 50 --crop-y 600 --crop-w 800 --crop-h 300 ".\Yii::$app->request->getHostInfo()."/bbgl/htmltoimg?img=attack-img-$type-$tasks.php  $dir/{$tasks}-{$date}-3.jpg";
                     exec($exec);
-                    $docCon = str_replace('{image1}',\Yii::$app->request->hostInfo."/report/now/$bbname-$type-doc-$date/{$tasks}-{$date}-1.jpg",$docCon);
-                    $docCon = str_replace('{image2}',\Yii::$app->request->hostInfo."/report/now/$bbname-$type-doc-$date/{$tasks}-{$date}-2.jpg",$docCon);
-                    $docCon = str_replace('{image3}',\Yii::$app->request->hostInfo."/report/now/$bbname-$type-doc-$date/{$tasks}-{$date}-3.jpg",$docCon);
+                 // var_dump($_SERVER['HTTP_ORIGIN']."/report/now/$bbname-$type-doc-$date/{$tasks}-{$date}-1.jpg");die;
+                    $docCon = str_replace('{image1}',$_SERVER['HTTP_ORIGIN']."/report/now/$bbname-$type-doc-$date/{$tasks}-{$date}-1.jpg",$docCon);
+                    $docCon = str_replace('{image2}',$_SERVER['HTTP_ORIGIN']."/report/now/$bbname-$type-doc-$date/{$tasks}-{$date}-2.jpg",$docCon);
+                    $docCon = str_replace('{image3}',$_SERVER['HTTP_ORIGIN']."/report/now/$bbname-$type-doc-$date/{$tasks}-{$date}-3.jpg",$docCon);
+//                    var_dump('//'.$_SERVER['SERVER_ADDR']."/$bbname-$type-doc-$date/{$tasks}-{$date}-1.jpg");die;
                     $docCon = str_replace('{image_sg}',\Yii::$app->request->hostInfo."/report/now/$bbname-$type-doc-$date/7.png",$docCon);
+
                     //var_dump($docCon);die;
                     file_put_contents($dir . "/attack-doc-{$tasks}.doc", $docCon, LOCK_EX);
 
                 }
-                $db->query("INSERT INTO " . getTable('reportsmanage') . " (`name`,`type`,`desc`,`time`,`path`,`timetype`,`format`) VALUES ('$name','1','$desc','$timestamp','$path','1','$rt')");
             }
             //打包
             $bbname =str_replace('://','_',$bbname);
             $bbname =str_replace('/','_',$bbname);
+            $type=$_REQUEST['type'];
             if($rt=='html'){
-                $exec = "cd /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now; zip -q -r -j ./" ."$bbname-html.zip ./attack*.html ../common.js ../common.css ../jquery-1.9.1.min.js ../bluechar.js";
-                //echo $exec;die;
+                $exec = "cd /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now; rm -rf $bbname-$type-html.zip; zip -q -r -j ./" ."$bbname-$type-html.zip ./attack*.html ../common.js ../common.css ../jquery-1.9.1.min.js ../bluechar.js";
                 exec($exec);
+//                $exec="cd /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now; mkdir $bbname-$type-html-$date;cp ./attack-*.html ./*.jpg ./*.js ./*.css ../7.png /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now/$bbname-$type-html-$date";
+//                exec($exec);
                 $mom = $bbname . $theTime;
                 foreach ($taskss as $v){
                     unlink($dir . '/attack-'.$v . ".html");
@@ -849,6 +859,15 @@ select a.vul_name,a.vul_id,b.category from $tablevul a LEFT JOIN bd_host_vul_lib
                 unlink(REPORT_DIR . "./now/jquery-1.9.1.min.js");
                 unlink(REPORT_DIR . "./now/bluechar.js");
 
+
+//                $data['path'] = "/basic/web/report/now/$bbname-$type-html-$date/attack-$tasks.html";
+//                $data['filename'] = "$bbname.html";
+                $data['type'] ='html';
+                $data['down'] = "<a href=\"/report/now/" . "$bbname-$type-html.zip\" id=\"downAll\" target=\"_self\"" . "><span>下载{$name}</span></a>";
+
+            }elseif($rt=='pdf'){
+                $exec = "cd /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now; rm -rf $bbname-$type-pdf.zip; zip -q -r -j ./$bbname-$type-pdf.zip" . " ./attack*.pdf ";
+                //$exec="cd /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now; mkdir $bbname-$type-pdf-$date;cp ./attack-*.pdf  /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now/$bbname-$type-pdf-$date";
                 $data['down'] = "<a href=\"/report/now/" . "$bbname-html.zip\" id=\"downAll\" target=\"_self\"" . "><span>" . Yii::t('app', '下载') . "{$name}</span></a>";
             }elseif($rt=='pdf'){
                 $exec = "cd /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now; zip -q -r -j ./$bbname-pdf.zip" . " ./attack*.pdf ";
@@ -863,14 +882,14 @@ select a.vul_name,a.vul_id,b.category from $tablevul a LEFT JOIN bd_host_vul_lib
                 unlink(REPORT_DIR . "./now/common.js");
                 unlink(REPORT_DIR . "./now/jquery-1.9.1.min.js");
                 unlink(REPORT_DIR . "./now/bluechar.js");
-
-                $data['down'] = "<a href=\"/report/now/" . $bbname .'-pdf'. ".zip\" id=\"downAll\" target=\"_self\"" . "><span>" . Yii::t('app', '下载') . "{$name}</span></a>";
+                $data['type'] ='pdf';
+                $data['down'] = "<a href=\"/report/now/" . "$bbname-$type-pdf.zip\" id=\"downAll\" target=\"_self\"" . "><span>下载{$name}</span></a>";
+                //$data['down'] = "<a href=\"/report/now/$bbname-$type-pdf-$date/attack-$tasks.pdf\" id=\"downAll\" target=\"_self\"" . "><span>下载{$name}</span></a>";
             }else{
                 $exec="cd /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now; mkdir $bbname-$type-doc-$date;cp ./*.doc ./*.jpg ./*.js ./*.css ../7.png /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now/$bbname-$type-doc-$date";
                 exec($exec);
-                //$exec = "cd /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now; zip -q -r -j ./" ."$bbname-doc.zip ./attack*.doc ./*.jpg ../common.js ../common.css ../jquery-1.9.1.min.js ../bluechar.js";
-                //echo $exec;die;
-                //exec($exec);
+                $exec = "cd /home/bluedon/bdscan/bdwebserver/nginx/html/web/report/now; rm -rf $bbname-$type-doc.zip; zip -q -r -j ./" ."$bbname-$type-doc.zip ./attack*.doc ";
+                exec($exec);
                 $mom = $bbname . $theTime;
                 foreach ($taskss as $v){
                     unlink($dir . '/attack-'.$v . ".html");
@@ -886,17 +905,27 @@ select a.vul_name,a.vul_id,b.category from $tablevul a LEFT JOIN bd_host_vul_lib
                     unlink(REPORT_DIR . "./now/attack-doc-$tasks.doc");
                     unlink(REPORT_DIR . "./now/attack-img-$type-$tasks.php");
                     unlink("/home/bluedon/bdscan/bdwebserver/nginx/html/views/bbgl/attack-img-$type-$tasks.php");
-                    $data['down'] = "<a href=\"/report/now/" . "$bbname-$type-doc-$date/attack-doc-$tasks.doc\" id=\"downAll\" target=\"_self\"" . "><span>下载{$name}</span></a>";
+                 //   $a[]=Yii::$app->request->hostInfo."/report/now/$bbname-$type-doc-$date/attack-doc-$tasks.doc";
                 }
+                //$data['down'] = "<a href=\"/report/now/" . "$bbname-$type-doc-$date/attack-doc-$tasks.doc\" id=\"downAll\" target=\"_self\"" . "><span>下载{$name}</span></a>";
+               // $data['down'] = $a;
+                $data['type'] = 'doc';
+                $data['down'] = "<a href=\"/report/now/" . "$bbname-$type-doc.zip\" id=\"downAll\" target=\"_self\"" . "><span>下载{$name}</span></a>";
+//                $data['path'] = "/basic/web/report/now/$bbname-$type-doc-$date/attack-$tasks.html";
+//                $data['filename'] = "$bbname.doc";
 
             }
+
+            //入库
+            $db->execute("INSERT INTO " . getTable('reportsmanage') . " (`name`,`type`,`desc`,`time`,`path`,`timetype`,`format`) VALUES ('$name','$type','$name',".time().",'{$data['down']}','1','$rt')");
+
             $data['success'] = true;
-            $data['message'] = Yii::t('app', '操作成功');
+            $data['message'] = '操作成功';
 //            if($kidbb == 1 && $hostnum >1){
 //                $data['mom'] = $mom;
 //            }
-            $hdata['sDes'] = Yii::t('app', '导出报表');
-            $hdata['sRs'] = Yii::t('app', '导出成功');
+            $hdata['sDes'] = '导出报表';
+            $hdata['sRs'] ='导出成功';
             $hdata['sAct'] = $act.'/'.$show;
             saveOperationLog($hdata);
             echo json_encode($data);
@@ -1028,101 +1057,6 @@ select a.vul_name,a.vul_id,b.category from $tablevul a LEFT JOIN bd_host_vul_lib
     }
 
 
-    function gridview_web($table,$category,$type='html'){
-        global $db;
-        $vul_level = array(
-            'H' => Yii::t('app', '高风险'),
-            'M' => Yii::t('app', '中风险'),
-            'L' => Yii::t('app', '低风险'),
-            'I' => Yii::t('app', '信息'),
-        );
-        $risk_css = array( 'H'=>'high', 'M'=>'medium', 'L'=>'low' ,'I'=>'low');
-        $rcccolor = array( 'H'=>'#d2322d', 'M'=>'#d58512', 'L'=>'#3276b1', 'I'=>'#3276b1');
-        $html = $whtml = '';
-        if($category=='level'){ //按等级
-            $index=4;
-            $hflist=[
-                ['id' => 1, 'desc' => Yii::t('app', '高危'), 'level' => 'H'],
-                ['id' => 2, 'desc' => Yii::t('app', '中危'), 'level' => 'M'],
-                ['id' => 3, 'desc' => Yii::t('app', '低危'), 'level' => 'L'],
-            ];
-        }elseif($category=='ip'){ //按ip
-            $index=5;
-            $hflist=[
-                ['id' => 1, 'desc' => Yii::t('app', '按ip')],
-            ];
-        }else{  //按类型
-            $hflist = $db->fetch_all("SELECT id,description as `desc` FROM bd_web_family WHERE parent_id='0' ORDER BY id ASC");
-            $index=3;
-        }
-        //    var_dump($hflist);die;
-        foreach($hflist as $h=>$f){
-            $html.='<div name="hostname" class="y-report-ui-comp-section"  ><div id="t'.$index.'_'.($h+1).'" class="y-report-ui-element-title-level-3 '.$classTemp.'">'.$index.'.'.($h+1).' '.$f['desc'].'</div>';
-            $whtml.='<p style="vertical-align:middle;line-height:30px;text-indent:2.5em;height:30px;font-size:16px;width:100%;font-weight:bold;'.$styleTemp.'">'.$hostIndex.'.'.($h+1).' '.$f['desc'].'</p>';
-            if($category=='level'){
-                $sql ="select a.*,count(1) as urlsum from $table a LEFT JOIN bd_web_vul_lib b  on a.vul_id = b.vul_id WHERE a.level='{$f['level']}' GROUP BY a.vul_id";
-                $myrows = $db->fetch_all($sql);
-            }elseif($category=='ip'){
-                $sql ="select a.*,count(1) as urlsum from $table a LEFT JOIN bd_web_vul_lib b  on a.vul_id = b.vul_id  GROUP BY a.vul_id";
-                $myrows = $db->fetch_all($sql);
-            }else{  //类型
-                $sql ="select a.*,b.module_id as category,count(1) as urlsum from $table a LEFT JOIN bd_web_vul_lib b  on a.vul_id = b.vul_id WHERE b.module_id = {$f['id']} GROUP BY a.vul_id";
-                //echo $sql;die;
-                $myrows = '';
-            }
-
-            if(empty($myrows)){
-                $html.='<p class="y-report-ui-element-content">' . Yii::t('app', '本次扫描没有发现该风险。') . '</p>';
-                $whtml.='<p style="line-height:20px;text-indent:4em;width:100%">' . Yii::t('app', '本次扫描没有发现该风险。') . '</p>';
-            }else{
-                //$html.='<p class="y-report-ui-element-content">本次扫描共发现该风险<span class="y-report-ui-text-normal-b"> '.$v['ipnum'].' </span>个。</p>';
-                $html.='<div><table cellpadding="0" class="y-report-ui-comp-data-grid" special="objectType#expandableGrid" cellspacing="0"><tbody><tr><th width="10%" class="y-report-ui-comp-data-grid-th">' . Yii::t('app', '风险评级') . '</th><th width="70%" class="y-report-ui-comp-data-grid-th y-report-ui-comp-data-grid-td-text-align-left">' . Yii::t('app', '风险名称') . '</th><th width="10%" class="y-report-ui-comp-data-grid-th">' . Yii::t('app', '影响主机数') . '</th><th width="10%" class="y-report-ui-comp-data-grid-th">' . Yii::t('app', '更多信息') . '</th></tr>';
-
-                //$whtml.='<p style="line-height:20px;text-indent:4em;width:100%">本次扫描共发现该风险<span style="color:#000000;font-weight:bold"> '.($cums + $hums + $mums + $lums + $iums).' </span>个。</p>';
-
-                $whtml.= '<table cellpadding="0" style="font-size:12px;width:100%;border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px" cellspacing="0"><tbody>';
-
-                foreach($myrows as $k=>$v){
-                    $jieb = $vul_level["{$v['level']}"];
-                    $rcss = $risk_css["{$v['level']}"];
-                    $rcor = $rcccolor["{$v['level']}"];
-                    $html .= '<tr><td colspan="4"><span id="recordweb-show"><table cellpadding="0" class="y-report-ui-comp-data-grid" special="objectType#expandableGrid" cellspacing="0"><tbody>';
-                    $html .= '<tr class="y-report-ui-comp-data-grid-tr-' . ($k % 2) . '"><td class="y-report-ui-text-level-' . $rcss . '-b" id="webfxjb">' . $jieb . '</td><td class="y-report-ui-comp-data-grid-td-text-align-left" id="webfxname">' . $v['vul_name'] . '</td><td id="weburlnum">' . $v['urlsum'] . '</td><td special="openDetail" class="y-report-ui-element-more-info-link">' . Yii::t('app', '展开详情') . '</td></tr>';
-                    $whtml .= '<tr><td colspan="2" style=" border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px"><div><div><div style="background-color:#91C5F6; vertical-align:middle; height:20px; line-height: 20px; width: 100%"> [ <span style="color:' . $rcor . '">' . $jieb . '</span> ] ' . $v['vul_name'] . '</div><div style="clear:both"></div></div>';
-                    $whtml .= '<div><div><div style="position:relative;">';
-                    $whtml .= '<table cellpadding="0" style="font-size:12px;width:100%;border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px" cellspacing="0"><tbody>';
-                    $whtml .= '<tr><td style="width:140px; padding:3px; border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px">' . Yii::t('app', '影响URL数') . '</td><td style="padding:3px;border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px">' . $v['urlsum'] . '</td></tr>';
-
-                    $html .= '<tr style="display:none"><td colspan="4" style="opacity:0;-ms-filter:\'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\';filter:alpha(opacity=0);-webkit-opacity:0;-moz-opacity:0;-khtml-opacity:0"><div class="y-report-ui-object-expandable-grid-detail-panel"><div class="y-report-ui-object-expandable-grid-detail-panel-header-frame"><div class="y-report-ui-object-expandable-grid-detail-panel-header-title"> [ <span class="y-report-ui-text-level-' . $rcss . '-b">' . $jieb . '</span> ] ' . $v['vul_name'] . '</div><div class="y-report-ui-object-expandable-grid-detail-panel-header-close" special="closeDetail">' . Yii::t('app', '关闭') . '</div><div style="clear:both"></div></div><div class="y-report-ui-object-expandable-grid-detail-panel-content-frame"><div class="y-report-ui-object-tab-panel-frame" special="objectType#tabPanel"><div style="position:relative;" class="y-report-ui-object-tab-panel-header-frame"><div style="float:left;" class="y-report-ui-object-host-vuln-list-tab-header y-report-ui-object-tab-panel-header-button-toggled">' . Yii::t('app', 'URL列表（共') . '' . $v['urlsum'] . Yii::t('app', '项）') . '</div><div style="float:left;" class="y-report-ui-object-host-vuln-list-tab-header y-report-ui-object-tab-panel-header-button">' . Yii::t('app', '风险描述') . '</div><div style="float:left;" class="y-report-ui-object-host-vuln-list-tab-header y-report-ui-object-tab-panel-header-button">' . Yii::t('app', '解决方案') . '</div><div style="clear:both"></div></div><div class="y-report-ui-object-tab-panel-content-frame"><div style="float:left" class="y-report-ui-object-tab-panel-content-element"><div class="y-report-ui-object-accordion-list-frame" special="objectType#accordionList">';
-                    $whtml .= '<tr><td style="padding:3px;border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px">' . Yii::t('app', 'URL列表（共') . '' . $v['urlsum'] . Yii::t('app', '项）') . '</td><td style="padding:3px;border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px">';
-                    $urllist = $db->fetch_all("SELECT url FROM $table WHERE vul_id='{$v['vul_id']}'");
-                    foreach ($urllist as $l => $u) {
-                        $html .= '<div class="y-report-ui-object-accordion-list-item-frame" id="web_urllist"><div class="y-report-ui-object-accordion-list-item-header">' . $u['url'] . '</div></div>';
-                        $whtml .= $u['url'] . '<br />';
-                    }
-                    $whtml .= '</td></tr>';
-                    $whtml .= '<tr><td style="padding:3px;border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px">' . Yii::t('app', '风险描述') . '</td><td style="padding:3px;border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px">' . $v['description'] . '</td></tr>';
-                    $whtml .= '<tr><td style="padding:3px;border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px">' . Yii::t('app', '解决方案') . '</td><td style="padding:3px;border-style:solid;border-color:#6296D3;table-layout:fixed;border-width:1px">' . $v['solution'] . '</td></tr>';
-                    $whtml .= '</tbody></table>';
-                    $whtml .= '</div></div></div>';
-                    $whtml .= '</td></tr>';
-
-                    $html .= '</div></div><div style="float:left;display:none" class="y-report-ui-object-tab-panel-content-element"><div class="y-report-ui-object-tab-panel-content-element-text-container" id="web_fxms">' . $v['description'] . '</div></div><div style="float:left;display:none" class="y-report-ui-object-tab-panel-content-element"><div class="y-report-ui-object-tab-panel-content-element-text-container" id="web_jjfa">' . $v['solution'] . '</div></div></div></div></div></div></td></tr>';
-                    $html .= '</tbody></table></span></td></tr>';
-                }
-                $html.='</tbody></table></div>';
-                $whtml.='</tbody></table>';
-            }
-
-            $html.='</div>';
-        }
-        # echo $html;die;
-        if($type=='pdf' || $type=='word'){
-            return $whtml;
-        }else{
-            return $html;
-        }
-    }
 //    function gridview_web($table,$category,$type='html'){
 //        global $db;
 //        $vul_level = array( 'H'=>'高风险', 'M'=>'中风险', 'L'=>'低风险' ,'I'=>'信息');
@@ -1612,6 +1546,24 @@ select a.vul_name,a.vul_id,b.category from $tablevul a LEFT JOIN bd_host_vul_lib
         return $category;
     }
 
+    /**
+     * 文件下载
+     * @param $path
+     * @param $bbname
+     *
+     */
+    function actionDownload(){
+        $path = $_GET['path'];
+        $bbname = $_GET['filename'];
+        $file=fopen($path,"r");
+        header("Content-Type: application/octet-stream");
+        header("Accept-Ranges: bytes");
+        header("Accept-Length: ".filesize($path));
+        header("Content-Disposition: attachment; filename=$bbname");
+        echo fread($file,filesize($path));
+        fclose($file);
+
+    }
 
     function getWordDocument( $content , $absolutePath = "" , $isEraseLink = true )
     {
