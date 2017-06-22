@@ -75,8 +75,9 @@ class HostvulController extends BaseController
         $ismodule = false;
         if (!empty($family)) {
             if ($ilevel == 3) {     //三级分类
-                $where1 = " WHERE family = $family";
+                $where1 = " WHERE family_id = $family";
                 $refrows = $db->fetch_all("SELECT vul_id FROM bd_host_vul_lib  $where1 ");
+
                 if (!empty($refrows)) {
                     foreach ($refrows as $k => $v) {
                         $refids[] = $v['vul_id'];
@@ -108,8 +109,8 @@ class HostvulController extends BaseController
         if (!empty($vul_name)) {        //查询名称
             $where .= " AND vi.vul_name LIKE '%{$vul_name}%'";
         }
-//echo "SELECT COUNT(`id`) FROM bd_host_vul_lib AS vi $where";die;
         $total = $db->result_first("SELECT COUNT(`id`) FROM bd_host_vul_lib AS vi $where");
+
         $maxPage = ceil($total / $perpage);
         $page = $page >= $maxPage ? $maxPage : $page;
         if ($sPost['sortname'] == 'vul_level') {
@@ -128,7 +129,6 @@ class HostvulController extends BaseController
             $start = ($page - 1) * $perpage;
             //$querys = "SELECT * FROM bd_host_vul_lib AS vi  INNER JOIN bd_host_family_list AS fl ON fr.family=fl.id  $where   LIMIT $start,$perpage";
             $querys = "SELECT * FROM bd_host_vul_lib AS vi $where LIMIT $start,$perpage";
-           // echo ($querys);die;
             $rows = $db->fetch_all($querys);
         }
         foreach ($rows as $k => $v) {
@@ -435,16 +435,6 @@ class HostvulController extends BaseController
         $aData = $aItem = $rData = array();
         $where = " WHERE 1=1";
         $rows = $db->fetch_all("SELECT * FROM bd_host_family_list  $where ");
-
-        foreach ($rows as $key => $value) {
-            $id = $value['id'];
-//            $sql = "select vul_id from host_family_ref where family= $id";
-//            $r_arry = $db->fetch_all($sql);
-//            if (empty($r_arry) && $value['parent_id'] != 0) {
-            if ( $value['parent_id'] != 0) {
-                unset($rows[$key]);
-            }
-        }
 
         foreach ($rows as $k => $v) {
 

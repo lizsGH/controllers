@@ -4,6 +4,7 @@ namespace app\controllers;
 /**
  * 工具类
  */
+use Yii;
 use app\components\bdsec_daemon;
 class ToolController extends BaseController {
 

@@ -59,7 +59,7 @@ class TuopuController extends BaseController
                 $v_ye_sum = intval($sPost['v_ye_sum']);
                 $sql = "update bd_sys_user set tp_sum = '".$v_sum."',tp_ye_sum ='".$v_ye_sum."' where id =".$userid;
 
-                if($db->query($sql)){
+                if($db->query($sql)>=0){
                     $aData['success']  = true;
                     $aData['msg']      = '配置成功！';
 
